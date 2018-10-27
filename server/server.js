@@ -14,10 +14,6 @@ app.use(express.static(publicPath));
 io.on("connection", socket => {
   console.log("New user connected");
 
-  socket.on("disconnect", () => {
-    console.log("User was disconnected");
-  });
-
   socket.emit(
     "newMessage",
     generateMessage("Admin", "Welcome to the chat app")
@@ -28,17 +24,16 @@ io.on("connection", socket => {
     generateMessage("Admin", "New User Joined")
   );
 
-  socket.on("createMessage", message => {
+  socket.on("createMessage", (message, callback) => {
     console.log("Created a new Message", message);
     io.emit("newMessage", generateMessage(message.from, message.text));
-    //socket.broadcast.emit("newMessage", {
-    //from: message.from,
-    //text: message.text,
-    //createdAt: new Date().getTime()
-    //});
+    callback("This is from the server");
+
+    socket.on("disconnect", () => {
+      console.log("User was disconnected");
+    });
   });
 });
-
 server.listen(port, () => {
   console.log(`server is up on port ${port}`);
 });
